@@ -1,6 +1,6 @@
 module Draft where
 import Prelude hiding (length)
-import qualified Data.List as L (genericLength)
+import qualified Data.List as L (genericLength, intersperse)
 
 length = L.genericLength
 
@@ -33,13 +33,8 @@ three steps:
 3. Finally a collection of individual agents are constructed to have
    bigHist as their n-D histogram.
 
-Example: Assume we have only two attributes, Age and Income.
-
 -}
 
-
-data Age    = Child | Mid | Old      deriving (Eq, Ord, Show, Bounded, Enum)
-data Income = Poor | Middle | Rich   deriving (Eq, Ord, Show, Bounded, Enum)
 
 type Hist1 a    = a -> Nat
 type Hist2 a b  = a -> b -> Nat
@@ -66,8 +61,9 @@ checkSyntPopHist ha hb smallHist bigHist =
 -- ----------------------------------------------------------------
 
 type Many = []
-type Nat = Double -- sometimes Int works, but when scaling up we will
-                  -- get to real numbers.
+type Nat = Double -- Integers works for counting, but when scaling up
+                  -- we will get to real numbers. Rationals can be
+                  -- used if we want to enable exact equality check.
 
 eps = 1e-4
 epsilon = 1e-9
@@ -91,3 +87,6 @@ minus :: Hist1 a -> Hist1 a -> Hist1 a
 minus h1 h2 a = h1 a - h2 a
 
 -- ----------------------------------------------------------------
+
+showHist :: (Show a, All a) => Hist1 a -> String
+showHist ha = concat (L.intersperse "; " (map (\a -> show a ++ ": " ++ show (ha a)) [minBound .. maxBound]))
