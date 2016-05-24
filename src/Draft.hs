@@ -1,6 +1,7 @@
 module Draft where
 import Prelude hiding (length)
 import qualified Data.List as L (genericLength, intersperse)
+import Text.Printf
 
 length = L.genericLength
 
@@ -36,8 +37,8 @@ three steps:
 -}
 
 
-type Hist1 a    = a -> Nat
-type Hist2 a b  = a -> b -> Nat
+type Hist1 a    = a -> Count
+type Hist2 a b  = a -> Hist1 b
 
 histogram1 :: Eq a => (p -> a) -> Many p -> Hist1 a
 histogram1 proj ps p = length (filter ((p==).proj) ps)
@@ -61,32 +62,81 @@ checkSyntPopHist ha hb smallHist bigHist =
 -- ----------------------------------------------------------------
 
 type Many = []
-type Nat = Double -- Integers works for counting, but when scaling up
-                  -- we will get to real numbers. Rationals can be
-                  -- used if we want to enable exact equality check.
+type Count = Double
+  -- Integers works for counting, but when scaling up
+  -- we will get to real numbers. Rationals can be
+  -- used if we want to enable exact equality check.
+-- type Count = Rational
 
 eps = 1e-4
 epsilon = 1e-9
 
-sumAll :: (Bounded a, Enum a) => Hist1 a -> Nat
+sumAll :: (Bounded a, Enum a) => Hist1 a -> Count
 sumAll   ha = sum (map    ha  [minBound .. maxBound])
 
-sumMap :: (Bounded a, Enum a) => (Double -> Double) -> Hist1 a -> Double
+sumMap :: (Bounded a, Enum a) => (Count -> Count) -> Hist1 a -> Count
 sumMap f ha = sum (map (f.ha) [minBound .. maxBound])
 
 class (Bounded a, Enum a) => All a
 
-closeToProportional :: (All a, All b) => Double -> Hist2 a b -> Hist2 a b -> Bool
+closeToProportional :: (All a, All b) => Count -> Hist2 a b -> Hist2 a b -> Bool
 closeToProportional diff smallHist bigHist = undefined
   -- TODO: check that there is some scalar k such that  bigHist ~= k .* smallHist
 
-close :: All a => Double -> Hist1 a -> Hist1 a -> Bool
+close :: All a => Count -> Hist1 a -> Hist1 a -> Bool
 close eps h1 h2 = sumMap (^2) (minus h1 h2) <= eps^2
 
 minus :: Hist1 a -> Hist1 a -> Hist1 a
 minus h1 h2 a = h1 a - h2 a
 
 -- ----------------------------------------------------------------
+-- Scaling
+
+scale :: (All a, All b) => Hist1 a -> Hist1 b -> Hist2 a b -> Hist2 a b
+scale ha hb = scaleCols hb . scaleRows ha
+
+scaleRows :: All b => Hist1 a -> Hist2 a b -> Hist2 a b
+scaleRows ha hab = \a -> scaleRow (ha a) (\b -> hab a b)
+
+scaleRow :: All b => Count -> Hist1 b -> Hist1 b
+scaleRow c hb = let s = sumAll hb
+                    k = c / s
+                in \b -> k * hb b
+
+scaleCols :: All a => Hist1 b -> Hist2 a b -> Hist2 a b
+scaleCols hb = transpose . scaleRows hb . transpose
+
+-- Same as scaleRow
+scaleCol :: All a => Count -> Hist1 a -> Hist1 a
+scaleCol = scaleRow
+
+
+transpose :: Hist2 a b -> Hist2 b a
+transpose = flip
+
+-- ----------------------------------------------------------------
+-- Helper functions to print (rounded) histograms
+
+showRound :: Count -> ShowS
+showRound c = printf "%.0f%s" c
+showRoundRat c = printf "%.0f%s" (fromRational c :: Double)
+
+showHist' :: All a => (a -> ShowS) -> (Count -> ShowS) -> Hist1 a -> ShowS
+showHist' sha shD ha = foldr (.) id
+                         (L.intersperse (showString ", ")
+                            (map (\a -> sha a . showString ": " . shD (ha a))
+                                 [minBound .. maxBound]))
 
 showHist :: (Show a, All a) => Hist1 a -> String
-showHist ha = concat (L.intersperse "; " (map (\a -> show a ++ ": " ++ show (ha a)) [minBound .. maxBound]))
+showHist ha = showHist' shows showRound ha ""
+
+showHist2' :: (All a, All b) =>
+  (a -> ShowS) -> (b -> ShowS) -> (Count -> ShowS) -> Hist2 a b -> ShowS
+showHist2' sha shb shD hab =
+  foldr (.) id
+    (L.intersperse (showString ";\n")
+       (map (\a -> sha a . showString ": {" . showHist' shb shD (hab a) . showString "}" )
+           [minBound .. maxBound]))
+
+showHist2 :: (Show a, Show b, All a, All b) => Hist2 a b -> String
+showHist2 hab = showHist2' shows shows showRound hab ""
