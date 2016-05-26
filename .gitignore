@@ -17,3 +17,6 @@ cabal.sandbox.config
 *.aux
 *.hp
 .stack-work/
+
+# Data files
+*.csv
