@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 attributes = ['attr_a', 'attr_b', 'attr_c']
-bin_names = [['a1', 'a2'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3']] 
+bin_names = [['a1', 'a2'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3']]
 n_micro_samples = 500
 
 n_attributes = len(attributes)
@@ -14,7 +14,7 @@ def inc_bin_indices(bi_list, ind, bin_names):
   bi_list[ind] += 1
   if bi_list[ind] == len(bin_names[ind]):
     bi_list[ind] = 0
-    if ind < n_attributes - 1: 
+    if ind < n_attributes - 1:
       return inc_bin_indices(bi_list, ind+1, bin_names)
   return bi_list
 
@@ -24,12 +24,12 @@ bin_indices = np.zeros(n_attributes, dtype=np.int)
 combinations = np.zeros((n_combinations, n_attributes), dtype=np.int)
 counts = np.zeros(n_combinations, dtype=np.int)
 for combination_no in range(0, n_combinations):
-  for attribute_no in range(0, n_attributes): 
+  for attribute_no in range(0, n_attributes):
     combinations[combination_no][attribute_no] = bin_indices[attribute_no]
   counts[combination_no] = random.randint(0,100)
   bin_indices = inc_bin_indices(bin_indices, 0, bin_names)
 
-print np.column_stack((combinations, counts)) 
+print np.column_stack((combinations, counts))
 
 cum_counts = np.cumsum(counts)
 #Create marginal distributions and save as csv
@@ -44,7 +44,7 @@ for attribute_no in range(0, n_attributes):
   pd.DataFrame([attribute_marginal], columns=bin_names[attribute_no]).to_csv(attributes[attribute_no] + '.csv', index=False)
 
 #Create micro sample and save as csv
-micro_sample = [] 
+micro_sample = []
 for micro_row in range(0, n_micro_samples):
   ran = random.randint(0, cum_counts[len(cum_counts)-1])
   macro_row = 0
@@ -52,7 +52,6 @@ for micro_row in range(0, n_micro_samples):
     macro_row += 1
   sample_row = []
   for attribute_no in range(0, n_attributes):
-    sample_row.append(bin_names[attribute_no][combinations[macro_row][attribute_no]]) 
+    sample_row.append(bin_names[attribute_no][combinations[macro_row][attribute_no]])
   micro_sample.append(sample_row)
 pd.DataFrame(micro_sample, columns=attributes).to_csv('micro_sample.csv', index=False)
-  
