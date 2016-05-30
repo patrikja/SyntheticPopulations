@@ -118,16 +118,3 @@ print 'The third last column is people in the micro sample for each combination.
 print 'The second last column is the value after IPF. The last column is their ratio.'
 print np.column_stack((combinations, counts_orig, counts, ratio)) 
 
-
-
-#for i0 in range(0, lengths[0]):
-#  for i1 in range(0, lengths[1]):
-#    for i2 in range(0, lengths[2]):
-#      micro[i0][i1][i2] = len(micro_df.loc[(micro_df[attributes[0]] == sexes_s[i0]) & (micro_df[attributes[1]] == ages_s[i1]) & (micro_df[attributes[2]] == races_s[i2])].index)
-#
-#sexes=sex_df.as_matrix()[0,:]
-#ages=age_df.as_matrix()[0,:]
-#races=race_df.as_matrix()[0,:]
-#
-#for i1 in range(0, lengths[0]):
-#  micro[i0][i1][i2] 

@@ -2,8 +2,15 @@ import pandas as pd
 import numpy as np
 import random
 
+#The names of the different attributes. Can be arbitrarily many. Will be used as names for marginal 
+#distribution files and as headers in micro sample.
 attributes = ['attr_a', 'attr_b', 'attr_c']
+
+#The names of the differint bins within an attribute. Can be arbitrarily many for each attribute.
+#Will be used in micro sample.
 bin_names = [['a1', 'a2'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3']]
+
+#Number of agents to use in the micro sample
 n_micro_samples = 500
 
 n_attributes = len(attributes)
