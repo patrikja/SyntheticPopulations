@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import random
 
 micro_csv = 'micro_sample.csv'
 sample_attributes = ['attr_a', 'attr_b', 'attr_c']
@@ -116,5 +116,21 @@ print 'Results.'
 print 'First n_attributes columns are the combinations of bins.'
 print 'The third last column is people in the micro sample for each combination.'
 print 'The second last column is the value after IPF. The last column is their ratio.'
-print np.column_stack((combinations, counts_orig, counts, ratio)) 
+print np.column_stack((combinations, counts_orig, counts, ratio))
 
+#Create synthetic population from combinations and write to file
+n_persons = int(np.sum(np.round(counts)))
+household_ids = sorted([random.randint(1, n_persons/3) for i in range(0, n_persons)]) #TODO: better
+person_id = 1
+synt_pop_df = pd.DataFrame(columns=['person_id', 'household_id']+sample_attributes)
+for combination_no in range(0, n_combinations):
+  for person_no in range(0, int(round(counts[combination_no]))):
+    row = pd.DataFrame(columns=['person_id', 'household_id']+sample_attributes)
+    row.set_value(0, 'person_id', person_id)
+    row.set_value(0, 'household_id', household_ids[person_id-1])
+    for attribute_no in range(0, n_attributes):
+      row.set_value(0, sample_attributes[attribute_no], sample_bin_names[attribute_no][combinations[combination_no][attribute_no]])
+    synt_pop_df = synt_pop_df.append(row)
+    person_id += 1
+
+synt_pop_df.to_csv('synthetic_population.csv', index=False)
