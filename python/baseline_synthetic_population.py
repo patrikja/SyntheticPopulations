@@ -2,20 +2,21 @@ import pandas as pd
 import numpy as np
 import random
 
-micro_csv = 'micro_sample.csv'
+#The following shall be identical to the corresponding values in the genertion script
+#(If the files produced there are to be used)
 sample_attributes = ['attr_a', 'attr_b', 'attr_c']
-sample_bin_names = [['a1', 'a2'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3']] 
+sample_bin_names = [['a0', 'a1'], ['b0', 'b1', 'b2'], ['c0', 'c1', 'c2']] 
+micro_sample_csv = 'micro_sample.csv'
+marginal_csvs = map(lambda e: e + '.csv', sample_attributes)
 
-marginal_csvs = ['attr_a.csv', 'attr_b.csv', 'attr_c.csv']
-
-#micro_csv = 'pop_pums_500.csv'
+#micro_sample_csv = 'pop_pums_500.csv'
 #sample_attributes = ['sex', 'age', 'race']
 #sample_bin_names = [[1, 2], [1, 2, 3], [1, 2, 3]] 
 #
 #marginal_csvs = ['sex_marginal.csv', 'age_marginal.csv', 'race_marginal.csv']
 
 
-micro_df = pd.read_csv(micro_csv)[sample_attributes]
+micro_df = pd.read_csv(micro_sample_csv)[sample_attributes]
 n_attributes = len(sample_attributes)
 n_combinations = np.product(map(lambda e: len(e), sample_bin_names)) #Number of unique combinations of bins from the attributes in the micro sample
 
@@ -120,7 +121,7 @@ print np.column_stack((combinations, counts_orig, counts, ratio))
 
 #Create synthetic population from combinations and write to file
 n_persons = int(np.sum(np.round(counts)))
-household_ids = sorted([random.randint(1, n_persons/3) for i in range(0, n_persons)]) #TODO: better
+household_ids = sorted([random.randrange(1, n_persons/3) for i in range(0, n_persons)]) #TODO: better
 person_id = 1
 synt_pop_df = pd.DataFrame(columns=['person_id', 'household_id']+sample_attributes)
 for combination_no in range(0, n_combinations):
