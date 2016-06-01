@@ -1,0 +1,216 @@
+\documentclass{beamer}
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+
+\title[Synthetic Populations]{Introduction to Synthetic Populations}
+\author{Oskar Allerbo}
+\institute{CoeGSS / Chalmers}
+\date{2015-05-31}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{Synthetic Population Generation}
+\begin{frame}
+  \centering
+  \LARGE 
+  Synthetic Population Generation
+\end{frame}
+
+\subsection{Introduction}
+\begin{frame}{Introduction}
+\begin{itemize}
+  \item A synthetic population is an educated guess from aggregated population data of what the real population behind the data looks like.
+  \item The most common (?) method to use is Iterational Proportional Fitting (IPF), but there exist other techniques.
+  \item IPF uses one dimensional marginal distributions for each of the attributes of a population (e.g. age or income distributions) and a
+micro sample consisting of a subsample of typically around 5 \% of the population where all data is available.
+  \item It then scales up the micro sample to fit the marginal distributions, while preserving the coorelations between attributes as good as possible.
+\end{itemize}
+\end{frame}
+
+
+\subsection{IPF Algorithm}
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item Arrange the micro sample in a multidimensional matrix with as many dimensions as there are attributes. 
+The number of rows/columns in every dimension is the same as the number of bins for the corresponding attribute.
+In the example we have two attributes, income and age, with three bins per attribute. (Although they are in this
+example, the number of bins do not have to be the same between attributes.)
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c}
+ & 0-30 & 31-60 & 61-\\
+\hline \hline
+Low & & & \\
+Middle & & & \\
+High & & & \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item For every element in the matrix write the number of individuals in the micro sample with the particular
+combination of attributes corresponding to the elements position.
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c}
+ & 0-30 & 31-60 & 61- \\
+\hline \hline
+Low & 3 & 6 & 3 \\
+Middle & 8 & 2 & 4 \\
+High & 10 & 3 & 11 \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item For every row/column add the actual sum and the required sum. The required sums are given by the marginal distributions. 
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c||l|l}
+ & 0-30 & 31-60 & 61- & Sum$_{\mathrm{act}}$ & Sum$_{\mathrm{req}}$\\
+\hline \hline
+Low & 3 & 6 & 3 & 12 & 76 \\
+Middle & 8 & 2 & 4 & 14 & 88 \\
+High & 10 & 3 & 11 & 24 & 91 \\
+\hline \hline
+Sum$_{\mathrm{act}}$ & 21 & 11 & 18 & 50 & \\
+\hline
+Sum$_{\mathrm{req}}$ & 109 & 69 & 77 & & 255 \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item For every row/column in the first dimension, multiply all elements in the row/column with Sum$_{\mathrm{req}}$/Sum$_{\mathrm{act}}$ to match
+actual and required sums perfectly.
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c||l|l}
+ & 0-30 & 31-60 & 61- & Sum$_{\mathrm{act}}$ & Sum$_{\mathrm{req}}$\\
+\hline \hline
+Low & 19.00 & 38.00 & 19.00 & 76.00 & 76 \\
+Middle & 50.29 & 12.57 & 25.14 & 88.00 & 88 \\
+High & 37.92 & 11.38 & 41.71 & 91.00 & 91 \\
+\hline \hline
+Sum$_{\mathrm{act}}$ & 107.20 & 61.95 & 85.85 & 255.00 & \\
+\hline
+Sum$_{\mathrm{req}}$ & 109 & 69 & 77 & & 255 \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item For every row/column in the second dimension, multiply all elements in the row/column with Sum$_{\mathrm{req}}$/Sum$_{\mathrm{act}}$ to match
+actual and required sums perfectly. Then do the same thing for the third dimension, and the fourth, and so on.
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c||l|l}
+ & 0-30 & 31-60 & 61- & Sum$_{\mathrm{act}}$ & Sum$_{\mathrm{req}}$\\
+\hline \hline
+Low & 19.32 & 42.33 & 17.04 & 78.69 & 76 \\
+Middle & 51.13 & 14.00 & 22.55 & 87.68 & 88 \\
+High & 38.55 & 12.67 & 37.41 & 88.63 & 91 \\
+\hline \hline
+Sum$_{\mathrm{act}}$ & 109.00 & 69.00 & 77.00 & 255.00 & \\
+\hline
+Sum$_{\mathrm{req}}$ & 109 & 69 & 77 & & 255 \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item Start all over again with the first dimension and repeat until convergence.
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c||l|l}
+ & 0-30 & 31-60 & 61- & Sum$_{\mathrm{act}}$ & Sum$_{\mathrm{req}}$\\
+\hline \hline
+Low & 18.42 & 41.36 & 16.23 & 76.01 & 76 \\
+Middle & 51.12 & 14.35 & 22.53 & 88.00 & 88 \\
+High & 39.46 & 13.29 & 38.25 & 91.00 & 91 \\
+\hline \hline
+Sum$_{\mathrm{act}}$ & 109.00 & 69.00 & 77.01 & 255.02 & \\
+\hline
+Sum$_{\mathrm{req}}$ & 109 & 69 & 77 & & 255 \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{IPF Algorithm}
+\begin{itemize}
+  \item After some clever rounding to integers (TODO: how?) every element in the matrix tells us how many synthetic people
+there are for each combination of attribute values.
+\end{itemize}
+
+\begin{table}
+\centering
+\begin{tabular}{l||c c c||l|l}
+ & 0-30 & 31-60 & 61- & Sum$_{\mathrm{act}}$ & Sum$_{\mathrm{req}}$\\
+\hline \hline
+Low & 18 & 42 & 16 & 76 & 76 \\
+Middle & 51 & 14 & 23 & 88 & 88 \\
+High & 40 & 13 & 38 & 91 & 91 \\
+\hline \hline
+Sum$_{\mathrm{act}}$ & 109 & 69 & 77 & 255 & \\
+\hline
+Sum$_{\mathrm{req}}$ & 109 & 69 & 77 & & 255 \\
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\section{Activity Assignment}
+\begin{frame}
+  \centering
+  \LARGE 
+  Activity Assignment
+\end{frame}
+
+
+\subsection{Introduction}
+\begin{frame}{Introduction}
+\end{frame}
+
+\end{document}
+
