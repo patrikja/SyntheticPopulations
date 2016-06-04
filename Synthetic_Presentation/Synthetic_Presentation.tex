@@ -55,7 +55,7 @@
 
 
 \subsection{IPF Algorithm}
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item Arrange the micro sample in a multidimensional matrix with as
   many dimensions as there are attributes. The number of rows/columns
@@ -79,7 +79,7 @@ High  & & & \\
 \end{frame}
 
 
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item For every element in the matrix write the number of individuals
   in the micro sample with the particular combination of attributes
@@ -101,7 +101,7 @@ High  & 10 &  3 & 11 \\
 
 \newcommand{\sumact}{\ensuremath{\text{Sum}_{\text{act}}}}
 \newcommand{\sumreq}{\ensuremath{\text{Sum}_{\text{req}}}}
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item For every row/column add the actual sum and the required sum.
   The required sums are given by the marginal distributions.
@@ -124,7 +124,7 @@ High     &  10 &   3 &  11 &  24 &  91 \\
 \end{frame}
 
 
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item For every row/column in the first dimension, multiply all
   elements in the row/column with \(\sumreq{}/\sumact{}\)
@@ -148,7 +148,7 @@ High     &  37.92 &  11.38 &  41.71 &  91.00 &  91 \\
 \end{frame}
 
 
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item For every row/column in the second dimension, multiply all
   elements in the row/column with \(\sumreq{}/\sumact{}\)
@@ -173,7 +173,7 @@ High & 38.55 & 12.67 & 37.41 & 88.63 & 91 \\
 \end{frame}
 
 
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item Start all over again with the first dimension and repeat until
   convergence.
@@ -196,7 +196,7 @@ High     &  39.46 & 13.29 & 38.25 & 91.00 & 91 \\
 \end{frame}
 
 
-\begin{frame}{IPF Algorithm}
+\begin{frame}{IPF Algorithm (naïve)}
 \begin{itemize}
 \item After some clever rounding to integers (TODO: how?) every
   element in the matrix tells us how many synthetic people there are
@@ -217,6 +217,26 @@ High     &  40   &  13   &  38   & 91 & 91 \\
 \sumreq{}& 109   &  69   &  77   & & 255 \\
 \end{tabular}
 \end{table}
+\end{frame}
+\begin{frame}{IPF Algorithm (efficient)}
+
+\begin{itemize}
+\item The \(i \times j\)
+  matrix obtained before rounding can be factored into a cross product
+  of two vectors \(a\)
+  and \(b\)
+  and a more computationally efficient algorithm can be constructed
+  which works directly with the factors \(a\)
+  and \(b\).
+  (See ``Algorithm 2 (factor estimation)'' on the
+  \href{https://en.wikipedia.org/wiki/Iterative_proportional_fitting}{wikipedia
+    page}.)
+\item The R package
+  \href{https://cran.r-project.org/web/packages/mipfp/}{mipfp}
+  provides a multi-dimensional implementation of (at least) the naïve
+  iterative proportional fitting procedure. (LICENSE: GPL-2)
+\end{itemize}
+
 \end{frame}
 
 

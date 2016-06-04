@@ -1,0 +1,1 @@
+* TODO For me (Patrik) running ```python baseline_synthetic_population.py``` takes more than half an hour (after which I killed it).
