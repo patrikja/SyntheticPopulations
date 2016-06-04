@@ -13,3 +13,6 @@ Related: software to do the simulation of synthetic population:
 Publications:
 * Virginia Tech describe how they generate synthetic populations with activities: http://staff.vbi.vt.edu/swarup/papers/US-pop-generation.pdf
 * In depth description of activity assignement to the synthetic population: http://www.sersc.org/journals/IJT/vol4_no1/3.pdf
+
+Methods:
+* ITF: https://en.wikipedia.org/wiki/Iterative_proportional_fitting
