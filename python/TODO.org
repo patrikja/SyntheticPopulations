@@ -1,1 +1,1 @@
-* TODO For me (Patrik) running ```python baseline_synthetic_population.py``` takes more than half an hour (after which I killed it).
+* Done For me (Patrik) running ```python baseline_synthetic_population.py``` took more than half an hour (after which I killed it). Re-generating the csv files solved this, so I added a "clean" target to the Makefile to make it easier re-gereate.

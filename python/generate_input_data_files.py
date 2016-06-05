@@ -3,7 +3,7 @@ import numpy as np
 import random
 import sys
 
-#The names of the different attributes. Can be arbitrarily many. Will be used as names for marginal 
+#The names of the different attributes. Can be arbitrarily many. Will be used as names for marginal
 #distribution files and as headers in micro sample.
 attributes = ['attr_a', 'attr_b', 'attr_c']
 
@@ -11,7 +11,7 @@ attributes = ['attr_a', 'attr_b', 'attr_c']
 #Will be used in micro sample.
 bin_names = [['a0', 'a1'], ['b0', 'b1', 'b2'], ['c0', 'c1', 'c2']]
 
-#The names of the different activitiy types. Can be arbitrarily many. Will be used when generating schedules 
+#The names of the different activitiy types. Can be arbitrarily many. Will be used when generating schedules
 activities = ['act0', 'act1', 'act2']
 
 #File names to use when saving
@@ -57,6 +57,7 @@ for combination_no in range(0, n_combinations):
   counts[combination_no] = int(round(counts_frac[combination_no]*scale_factor))
 
 print 'Full population'
+# TODO: bin_indices is [0, 0, 0] at this point => "a0 b0 c0" is printed on each line before the count! Lack of combinations[combination_no]?
 for combination_no in range(0, n_combinations):
   for attribute_no in range(0, n_attributes):
     sys.stdout.write(bin_names[attribute_no][bin_indices[attribute_no]] + ' ')

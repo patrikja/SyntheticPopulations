@@ -2,16 +2,16 @@ import pandas as pd
 import numpy as np
 import random
 
-#The following shall be identical to the corresponding values in the genertion script
+#The following shall be identical to the corresponding values in the generation script
 #(If the files produced there are to be used)
 sample_attributes = ['attr_a', 'attr_b', 'attr_c']
-sample_bin_names = [['a0', 'a1'], ['b0', 'b1', 'b2'], ['c0', 'c1', 'c2']] 
+sample_bin_names = [['a0', 'a1'], ['b0', 'b1', 'b2'], ['c0', 'c1', 'c2']]
 micro_sample_csv = 'micro_sample.csv'
 marginal_csvs = map(lambda e: e + '.csv', sample_attributes)
 
 #micro_sample_csv = 'pop_pums_500.csv'
 #sample_attributes = ['sex', 'age', 'race']
-#sample_bin_names = [[1, 2], [1, 2, 3], [1, 2, 3]] 
+#sample_bin_names = [[1, 2], [1, 2, 3], [1, 2, 3]]
 #
 #marginal_csvs = ['sex_marginal.csv', 'age_marginal.csv', 'race_marginal.csv']
 
@@ -27,18 +27,18 @@ def inc_bin_indices(bi_list, ind, bin_names):
   bi_list[ind] += 1
   if bi_list[ind] == len(bin_names[ind]):
     bi_list[ind] = 0
-    if ind < n_attributes - 1: 
+    if ind < n_attributes - 1:
       return inc_bin_indices(bi_list, ind+1, bin_names)
   return bi_list
 
-#A list of indices for sample_bin_names. This list is updated for every combination of bins below, and used so that 
-#each combination is expressed by a unique combination of bin indices. 
+#A list of indices for sample_bin_names. This list is updated for every combination of bins below, and used so that
+#each combination is expressed by a unique combination of bin indices.
 bin_indices = np.zeros(n_attributes, dtype=np.int)
 
 #------------ Create micro sample matrix ------------
 #Create matrix 'combinations' where each row is a unique combination of bins, with one bin from each attribute in the micro sample.
 #The indices of the bins of attribute n are described in column n.
-#Create vector 'counts', the number of agents (persons, households ...) in the micro 
+#Create vector 'counts', the number of agents (persons, households ...) in the micro
 #sample for the combination described in the matrix. The values in the vector will be increased during IPF
 #Example with n_attributes=3 and len(sample_bin_names=[2, 2, 3]:
 #Matrix   Vector
@@ -59,8 +59,8 @@ combinations = np.zeros((n_combinations, n_attributes), dtype=np.int)
 counts = np.zeros(n_combinations, dtype=np.float)
 for combination_no in range(0, n_combinations):
   micro_df_sub = micro_df
-  for attribute_no in range(0, n_attributes): 
-    combinations[combination_no][attribute_no] = bin_indices[attribute_no] #The current attribute for the current combination is given its value 
+  for attribute_no in range(0, n_attributes):
+    combinations[combination_no][attribute_no] = bin_indices[attribute_no] #The current attribute for the current combination is given its value
     micro_df_sub = micro_df_sub.loc[micro_df_sub[sample_attributes[attribute_no]] == sample_bin_names[attribute_no][bin_indices[attribute_no]]] #The df is filtered to remove all rows where the attribute differs from the value given on the row above
 
   counts[combination_no] = len(micro_df_sub.index) #The rows still remaining in the df are the ones where all the attribute values match the signatuere given in bin_indices.
@@ -80,19 +80,19 @@ while True:
       for combination_no in range(0, n_combinations):
         if combinations[combination_no][attribute_no] == bin_no:
           sum_over_bin += counts[combination_no]
-      
-      #Add the difference between actual and desired marginal distribution value for bin 
+
+      #Add the difference between actual and desired marginal distribution value for bin
       #To total deviation
       diff_sum += abs(sum_over_bin - marginals[attribute_no][bin_no])
 
-      #Update all combinations for the current bin for the current attribute so that the sum over 
+      #Update all combinations for the current bin for the current attribute so that the sum over
       #the bin is identical to the marginal distribution value for this bin
       for combination_no in range(0, n_combinations):
         if combinations[combination_no][attribute_no] == bin_no:
           counts[combination_no] *= marginals[attribute_no][bin_no]/sum_over_bin
 
   counter +=1
-  if diff_sum < 0.01: 
+  if diff_sum < 0.01:
     break
 
 #---------- Print results -------------
