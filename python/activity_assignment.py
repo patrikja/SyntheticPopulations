@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as sm
 import copy
-
-BIG_FLOAT = float(Infinity)
+from common import *
 
 # The following must be identical to the corresponding values in the genertion
 # script (if the files produced there are to be used).
@@ -110,7 +109,7 @@ class Household:
   def distance(self, other_household):
     max_person_dist = 0
     for my_person in self.persons:
-      min_person_dist = BIG_FLOAT
+      min_person_dist = float("inf") 
       for other_person in other_household.persons:
         min_person_dist = min(min_person_dist, my_person.distance(other_person))
       max_person_dist = max(max_person_dist, min_person_dist)
@@ -218,14 +217,14 @@ for person in synthetic_persons:
 # person in the selected survey household that it is closest to and copy the
 # survey person's schedule to the synthetic person
 for synthetic_household in synthetic_households:
-  min_household_dist = BIG_FLOAT
+  min_household_dist = float("inf")
   closest_survey_household = Household(0)
   for survey_household in survey_households:
     if synthetic_household.distance(survey_household) < min_household_dist:
       min_household_dist = synthetic_household.distance(survey_household)
       closest_survey_household = survey_household
   for synthetic_person in synthetic_household.persons:
-    min_person_dist =  BIG_FLOAT
+    min_person_dist =  float("inf")
     closest_survey_person = Person(0, 0, [], [])
     for survey_person in closest_survey_household.persons:
       if synthetic_person.distance(survey_person) < min_person_dist:

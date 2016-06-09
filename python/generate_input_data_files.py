@@ -1,26 +1,8 @@
 import pandas as pd
 import numpy as np
 import random
+from common import *
 
-# The names of the different attributes. Can be arbitrarily many. Will be used
-#   as names for marginal distribution files and as headers in micro sample.
-attributes = ['attr_a', 'attr_b', 'attr_c']
-
-# The names of the differint bins within an attribute. Can be arbitrarily many
-#   for each attribute. Will be used in micro sample.
-bin_names = [['a0', 'a1'], ['b0', 'b1', 'b2'], ['c0', 'c1', 'c2']]
-
-# The names of the different activitiy types. Can be arbitrarily many. Will be
-#   used when generating schedules.
-activities = ['act0', 'act1', 'act2']
-
-# File names to use when saving
-micro_sample_csv = 'micro_sample.csv'
-marginal_csvs = map(lambda e: e + '.csv', attributes)
-
-survey_attributes_csv = 'survey_people.csv'
-survey_activities_csv = 'survey_activities.csv'
-synthetic_people_csv  = 'synthetic_population.csv'
 
 MICRO_SAMPLE_SIZE  = 500 # Number of agents to use in the micro sample
 N_SURVEY_PERSONS =  10 # Number of persons in survey
@@ -29,31 +11,12 @@ POPULATION_SIZE  = 100 # Might not be exactly fulfilled due to rounding
 
 
 
-#int[] -> int[][]
-#Takes a list describing the number of bins for each attribute and
-#Returns a matrix with all possible combinations of the bins.
-#Each bin is represented by an index starting at zero.
-def define_combinations(bin_lengths):
-  n_attributes = len(bin_lengths)
-  n_combinations = np.product(bin_lengths)
-  bin_lengths_cum_prod = np.hstack((1, np.cumprod(bin_lengths)))
-  combinations = np.zeros((n_combinations, n_attributes), dtype=np.int)
-  for attribute_no in range(0, n_attributes):
-    combination_no = 0
-    for range_repeat in range(0, bin_lengths_cum_prod[n_attributes]/bin_lengths_cum_prod[attribute_no+1]):
-      for bin_no in range(0, bin_lengths[attribute_no]):
-        for bin_repeat in range(0, bin_lengths_cum_prod[attribute_no]):
-          combinations[combination_no][attribute_no] = bin_no
-          combination_no += 1
-  return combinations
-
-
 #(int, int) -> int[]
 #Takes two ints n_combinations and total_size and generates a random
 #vector of n_combinations ints that sums to total_size. 
 #Note that in this implementation the sum might not be exactly total_size
 #due to rounding errors.
-def set_counts(n_combinations, total_size):
+def counts_from_random(n_combinations, total_size):
   counts_frac = np.zeros(n_combinations, dtype=np.float)
   for combination_no in range(0, n_combinations):
     counts_frac[combination_no] = random.random()
@@ -65,14 +28,11 @@ def set_counts(n_combinations, total_size):
 
   return counts
 
-#(int, int) -> string
-#Takes attribute index and bin index, looks up the bin name in bin_names and return it.
-def bin_number_to_name(attribute_no, bin_no):
-  return bin_names[attribute_no][bin_no]
 
-#(int[][], int[], string[][]) -> string
+#(int[][], int[]) -> string
 #Transform a matrix with combinations and a vector with counts to a
 #good looking printable string, using the names of the bins.
+#TODO: Alignment
 def combinations_with_counts_to_string(combinations, counts):
   out_string = 'Full population\n'
   for combination_no in range(0, combinations.shape[0]):
@@ -83,7 +43,7 @@ def combinations_with_counts_to_string(combinations, counts):
   return out_string
 
 
-#(int, int[][], int[], string[][]
+#(int, int, int[][], int[]) -> int[]
 #Creates a marginal distribution with n_bins bins for attribute attribute_no 
 #from the population descriped by combinations and counts
 def aggregate_marginal_distribution(attribute_no, n_bins, combinations, counts):
@@ -117,12 +77,12 @@ def create_micro_sample(n_rows, combinations, counts):
   return micro_sample
 
 
-#(int, int, string[], string[], int[]) -> data_frame
+#(int, int) -> data_frame
 #Creates a data_frame with one row, containing person_id, houshold_id and
 #values for all attributes. For each attribute in attributes a random value
 #is chosen from bin_names randomly.
-def create_attribute_row(person_id, household_id, attributes, bin_lengths):  
-  row_attr = pd.DataFrame(columns=['person_id', 'household_id']+attributes)
+def create_attribute_row(person_id, household_id):  
+  row_attr = pd.DataFrame(columns=['person_id', 'household_id'] + attributes)
   row_attr.set_value(0, 'person_id', person_id)
   row_attr.set_value(0, 'household_id', household_id)
   for attribute_no in range(0, len(attributes)):
@@ -149,9 +109,8 @@ def create_activity_row(person_id, household_id, activity_type, start_time, dura
 
 
 # Create full population (this is the 'truth')
-bin_lengths    = map(lambda e: len(e), bin_names)
 combinations = define_combinations(bin_lengths)
-counts = set_counts(combinations.shape[0], POPULATION_SIZE) 
+counts = counts_from_random(combinations.shape[0], POPULATION_SIZE) 
 print combinations_with_counts_to_string(combinations, counts)
 
 #Write the marginal distribution for each attribute to a csv file
@@ -166,14 +125,14 @@ pd.DataFrame(create_micro_sample(MICRO_SAMPLE_SIZE, combinations, counts), colum
 
 # Create 'true' survey with activities and save in two files, one with
 #   attributes and one with activities.
-survey_attributes_df = pd.DataFrame(columns=['person_id', 'household_id']+attributes)
+survey_attributes_df = pd.DataFrame(columns=['person_id', 'household_id'] + attributes)
 survey_activities_df = pd.DataFrame(columns=['person_id', 'household_id',
                                              'activity_type', 'start_time',
                                              'duration', 'location'])
 household_id = 1
 for person_id in range(1, N_SURVEY_PERSONS):
 
-  survey_attributes_df = survey_attributes_df.append(create_attribute_row(person_id, household_id, attributes, bin_lengths))
+  survey_attributes_df = survey_attributes_df.append(create_attribute_row(person_id, household_id))
 
   start_time = 0
   for activity_no in range(0, random.randrange(1, N_MAX_ACTIVITIES + 1)):
