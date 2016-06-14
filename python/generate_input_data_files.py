@@ -7,7 +7,7 @@ from common import *
 MICRO_SAMPLE_SIZE  = 500 # Number of agents to use in the micro sample
 N_SURVEY_PERSONS =  10 # Number of persons in survey
 N_MAX_ACTIVITIES =   4 # Maximum number of activities for a person in a day
-POPULATION_SIZE  = 100 # Might not be exactly fulfilled due to rounding
+POPULATION_SIZE  = 10000 # Might not be exactly fulfilled due to rounding
 
 
 
