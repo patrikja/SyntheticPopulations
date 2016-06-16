@@ -46,22 +46,19 @@ def ipfNd(mat, margins, epsilon):
 
 mat_shape=(2, 3, 4, 5, 6)
 
-#Create random matrix and get its marginal distributions. Just defining margins at random seldom 
-#leads to convergence.
-mat = 1 + np.random.randint(99, size=mat_shape)
-dims = range(0, len(mat_shape))
-margins = []
-for dim in dims:
-  axes = dims[:] #Copy
-  axes.remove(dim) #Remove current dimension
-  sum_over_dims = mat.sum(axis=tuple(axes)) #Sum over all dimensions exept for for the current one
-  margins.append(sum_over_dims) 
-
 #Create seed of all ones
 seed = np.ones(np.product(mat_shape), dtype=np.float).reshape(mat_shape)
 
+#Create marginal distributions. All marginal distribution must sum to the same number.
+margins0 = [13000, 8000]
+margins1 = [7000, 7000, 7000]
+margins2 = [7000, 7000, 6000, 1000]
+margins3 = [2000, 5000, 4000, 3000, 7000]
+margins4 = [1000, 5000, 4000, 6000, 4000, 1000]
+margins = [margins0, margins1, margins2, margins3, margins4]    
+
 #print seed
 #print margins
-(full_mat, iterations) = ipfNd(seed, margins, 0.1)
+(full_mat, iterations) = ipfNd(seed, margins, 0.0001)
 print full_mat
 print 'iterations: {0}'.format(iterations)
