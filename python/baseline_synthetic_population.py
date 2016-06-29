@@ -5,37 +5,45 @@ from common import *
 import sys
 
 n_attributes = len(attributes)
-# Number of unique combinations of bins from the attributes in the micro sample.
+# Number of potential unique combinations of bins from the attributes
+# (some may not be present in the micro sample = some zeros is the matrix = problems when scaling up).
 n_combinations = np.product(map(lambda e: len(e), bin_names))
 
-marginal_bin_names = map(lambda csv: pd.read_csv(csv).columns.values.squeeze().tolist(), marginal_csvs)
-marginals = map(lambda csv: pd.read_csv(csv).values.squeeze().tolist(), marginal_csvs)
+marginal_bin_names = map(lambda csv: pd.read_csv(csv).columns.values.squeeze().tolist(),  marginal_csvs)
+marginals          = map(lambda csv: pd.read_csv(csv).values.squeeze().tolist(),          marginal_csvs)
 
-#(int[][], data_frame) -> int[]
-#Takes a matrix with all combinations of attribute values and a sample of agents
-#and returns a vector with the number of agents in the sample that match each combination.
-#TODO: Investigate if filtering on attribute values can be implemented better.
+# (int[][], data_frame) -> int[]
+# Takes a matrix with all combinations of attribute values and a sample of agents
+# and returns a vector with the number of agents in the sample that match each combination.
+# TODO: Investigate if filtering on attribute values can be implemented better.
 def counts_from_sample(combinations, sample):
   counts = np.zeros(n_combinations, dtype=np.int)
   for combination_no in range(0, combinations.shape[0]):
     sample_temp = sample
-    #For each attribute, only keep the rows where the value for this attribute 
-    #  matches the value of the current combination (given by combination_no)
+    # For each attribute, only keep the rows where the value for this attribute
+    #   matches the value of the current combination (given by combination_no)
     for attribute_no in range(0, combinations.shape[1]):
-      sample_temp = sample_temp[sample_temp[attributes[attribute_no]] == bin_number_to_name(attribute_no, combinations[combination_no][attribute_no])]
-  
+      # TODO: this seems really inefficient due to copying of arrays
+      # in an inner loop (and later the values are thrown away after
+      # counting them)
+      sample_temp = sample_temp[ sample_temp[attributes[attribute_no]] ==
+                                 bin_number_to_name(attribute_no, combinations[combination_no][attribute_no])
+                               ]
+
     # The rows still remaining in the data frame are the ones where all the attribute
     #   values match the current combination.
     counts[combination_no] = len(sample_temp.index)
   return counts
 
 
-#(int[][], int[], int[][], epsilon) -> (float[], int)
-#Takes the micro sample described by combinations and counts and uses IPF to scale
-#it up to a big population matching the marginal distributions given by marginals.
-#Convergence is considired to be reached when the sum of errors over all bins is less
-#than epsilon. Returns a list with new counts and a number of how many iterations that
-#were performed.
+# (int[][], int[], int[][], epsilon) -> (float[], int)
+
+# Takes the micro sample described by combinations and counts and uses
+# IPF to scale it up to a big population matching the marginal
+# distributions given by marginals.  Convergence is considered to be
+# reached when the sum of errors over all bins is less than epsilon.
+# Returns a list with new counts and the number of iterations that
+# were done.
 def ipf(combinations, counts, marginals, epsilon):
   counts = counts.astype(np.float)
   n_combinations = combinations.shape[0]
@@ -46,31 +54,33 @@ def ipf(combinations, counts, marginals, epsilon):
     diff_sum = 0.
     for attribute_no in range(0, n_attributes):
       for bin_no in range(0, len(bin_names[attribute_no])):
-  
+
         # Sum counts over all combinations that contains the current bin for the
         #   current attribute.
         sum_over_bin = 0.
         for combination_no in range(0, n_combinations):
           if combinations[combination_no][attribute_no] == bin_no:
             sum_over_bin += counts[combination_no]
-  
+
         # Add the difference between actual and desired marginal distribution
         # value for bin to total deviation.
         diff_sum += abs(sum_over_bin - marginals[attribute_no][bin_no])
-  
+
         # Update all combinations for the current bin for the current attribute
         #   so that the sum over the bin is identical to the marginal distribution
         #   value for this bin.
         for combination_no in range(0, n_combinations):
           if combinations[combination_no][attribute_no] == bin_no:
             counts[combination_no] *= marginals[attribute_no][bin_no]/sum_over_bin
-  
-    steps += 1
-  return (counts, steps) 
 
-#(int[][], float[], int[]) -> string
-#Transform a matrix with combinations and two vector with counts to a
-#good looking printable string, using the names of the bins.
+    steps += 1
+  return (counts, steps)
+
+# (int[][], float[], int[]) -> string
+
+# Transform a matrix with combinations and two vector with counts to a
+# good looking printable string, using the names of the bins.
+
 #TODO: Alignment
 def combinations_with_counts_to_string(combinations, counts_new, counts_orig):
   out_string = 'Full population\n'
@@ -87,11 +97,13 @@ The second last column is the value after IPF. The last column is their ratio.\n
   return out_string
 
 
-#(int[][], int[]) -> data_frame
-#Takes a synthetic population expressed as a list of combinations of attributes
-#and the number of agents with each combination and creates a data frame with 
-#one row for every agent. The agents are randomly assigned into households with random
-#size.
+# (int[][], int[]) -> data_frame
+
+# Takes a synthetic population expressed as a list of combinations of
+# attributes and the number of agents with each combination and
+# creates a data frame with one row for every agent. The agents are
+# randomly assigned into households with random size.
+
 def create_synthetic_population(combinations, counts):
   n_persons     = np.sum(counts)
   household_ids = sorted([random.randrange(1, n_persons/3) for i in range(0, n_persons)]) #TODO: better
@@ -109,7 +121,7 @@ def create_synthetic_population(combinations, counts):
       person_id += 1
 
   return synt_pop_df
-  
+
 
 #------------ Create micro sample matrix ------------
 # Create matrix 'combinations' where each row is a unique combination of bins,
