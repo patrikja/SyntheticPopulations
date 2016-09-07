@@ -29,3 +29,6 @@ cabal.sandbox.config
 *.pdf
 *.snm
 *.toc
+
+#Python
+python/common.pyc

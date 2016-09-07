@@ -11,21 +11,15 @@ POPULATION_SIZE  = 10000 # Might not be exactly fulfilled due to rounding
 
 
 
-#(int, int) -> int[]
-#Takes two ints n_combinations and total_size and generates a random
-#vector of n_combinations ints that sums to total_size. 
-#Note that in this implementation the sum might not be exactly total_size
-#due to rounding errors.
+# (int, int) -> int[]
+# Takes two ints n_combinations and total_size and generates a random
+# vector of n_combinations ints that sums to total_size.
+# Note that in this implementation the sum might not be exactly total_size
+# due to rounding errors.
 def counts_from_random(n_combinations, total_size):
-  counts_frac = np.zeros(n_combinations, dtype=np.float)
-  for combination_no in range(0, n_combinations):
-    counts_frac[combination_no] = random.random()
-  scale_factor = total_size/np.sum(counts_frac)
-
-  counts = np.zeros(n_combinations, dtype=np.int)
-  for combination_no in range(0, n_combinations):
-    counts[combination_no] = int(round(counts_frac[combination_no]*scale_factor))
-
+  counts_frac = np.random.random(n_combinations);
+  scale_factor = total_size/counts_frac.sum();
+  counts = np.array([int(round(x*scale_factor)) for x in counts_frac]);
   return counts
 
 
@@ -44,10 +38,10 @@ def combinations_with_counts_to_string(combinations, counts):
 
 
 #(int, int, int[][], int[]) -> int[]
-#Creates a marginal distribution with n_bins bins for attribute attribute_no 
+#Creates a marginal distribution with n_bins bins for attribute attribute_no
 #from the population descriped by combinations and counts
 def aggregate_marginal_distribution(attribute_no, n_bins, combinations, counts):
-  marginal = np.zeros(n_bins, dtype=np.int) 
+  marginal = np.zeros(n_bins, dtype=np.int)
   for bin_no in range(0, n_bins):
     sum_over_bin = 0
     for combination_no in range(0, combinations.shape[0]):
@@ -81,7 +75,7 @@ def create_micro_sample(n_rows, combinations, counts):
 #Creates a data_frame with one row, containing person_id, houshold_id and
 #values for all attributes. For each attribute in attributes a random value
 #is chosen from bin_names randomly.
-def create_attribute_row(person_id, household_id):  
+def create_attribute_row(person_id, household_id):
   row_attr = pd.DataFrame(columns=['person_id', 'household_id'] + attributes)
   row_attr.set_value(0, 'person_id', person_id)
   row_attr.set_value(0, 'household_id', household_id)
@@ -95,7 +89,7 @@ def create_attribute_row(person_id, household_id):
 #(int, int, string, int, int, int) -> data_frame
 #Creates a data_frame with one row, containing person_id, houshold_id and
 #information about a certain activity.
-def create_activity_row(person_id, household_id, activity_type, start_time, duration, location):  
+def create_activity_row(person_id, household_id, activity_type, start_time, duration, location):
     # TODO: Add correlation between duration and attributes
     row_act = pd.DataFrame(columns=['person_id', 'household_id', 'activity_type',
                                     'start_time', 'duration', 'location'])
@@ -110,7 +104,7 @@ def create_activity_row(person_id, household_id, activity_type, start_time, dura
 
 # Create full population (this is the 'truth')
 combinations = define_combinations(bin_lengths)
-counts = counts_from_random(combinations.shape[0], POPULATION_SIZE) 
+counts = counts_from_random(combinations.shape[0], POPULATION_SIZE)
 print combinations_with_counts_to_string(combinations, counts)
 
 #Write the marginal distribution for each attribute to a csv file
@@ -138,9 +132,9 @@ for person_id in range(1, N_SURVEY_PERSONS):
   for activity_no in range(0, random.randrange(1, N_MAX_ACTIVITIES + 1)):
     activity_type = activities[random.randrange(0, len(activities))] #Pick an activity at random.
     duration = random.randrange(10, 1000) #Take a random duration.
-    survey_activities_df = survey_activities_df.append(create_activity_row(person_id, household_id, activity_type, start_time, duration, 0))  
+    survey_activities_df = survey_activities_df.append(create_activity_row(person_id, household_id, activity_type, start_time, duration, 0))
     start_time += duration #The start time of the next activity is one duration later.
-  if random.random() < 0.6: household_id += 1 
+  if random.random() < 0.6: household_id += 1
 
 print
 print 'Schedules'
