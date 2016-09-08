@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-# The names of the different attributes. Can be arbitrarily many. 
+# The names of the different attributes. Can be arbitrarily many.
 attributes = ['attr_a', 'attr_b', 'attr_c']
 
 # The names of the differint bins within an attribute. Can be arbitrarily many
@@ -20,10 +20,10 @@ survey_attributes_csv = 'survey_people.csv'
 survey_activities_csv = 'survey_activities.csv'
 synthetic_people_csv  = 'synthetic_population.csv'
 
-#int[] -> int[][]
-#Takes a list describing the number of bins for each attribute and
-#Returns a matrix with all possible combinations of the bins.
-#Each bin is represented by an index starting at zero.
+# int[] -> int[][]
+# Takes a list describing the number of bins for each attribute and
+# Returns a matrix with all possible combinations of the bins.
+# Each bin is represented by an index starting at zero.
 def define_combinations(bin_lengths):
   n_attributes = len(bin_lengths)
   n_combinations = np.product(bin_lengths)
@@ -39,7 +39,7 @@ def define_combinations(bin_lengths):
   return combinations
 
 
-#(int, int) -> string
-#Takes attribute index and bin index, looks up the bin name in bin_names and return it.
+# (int, int) -> string
+# Takes attribute index and bin index, looks up the bin name in bin_names and return it.
 def bin_number_to_name(attribute_no, bin_no):
   return bin_names[attribute_no][bin_no]
