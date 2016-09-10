@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pandas as pd
 import numpy as np
 import random
@@ -6,8 +7,8 @@ import sys
 
 n_attributes = len(attributes)
 # Number of potential unique combinations of bins from the attributes
-# (some may not be present in the micro sample = some zeros is the matrix = problems when scaling up).
-n_combinations = np.product(map(lambda e: len(e), bin_names))
+# (some may not be present in the micro sample = some zeros in the matrix = problems when scaling up).
+n_combinations = np.product(map(len, bin_names))
 
 marginal_bin_names = map(lambda csv: pd.read_csv(csv).columns.values.squeeze().tolist(),  marginal_csvs)
 marginals          = map(lambda csv: pd.read_csv(csv).values.squeeze().tolist(),          marginal_csvs)
