@@ -116,6 +116,7 @@ for attribute_no in range(0, len(attributes)):
   attribute_df.to_csv(marginal_csvs[attribute_no], index=False)
 
 # Sample micro sample and write to a cvs file
+#   TODO: the sample is an array before saving, but in baseline_synthetic_population it is read back in as a hashtable from attributes to columns!
 pd.DataFrame(create_micro_sample(MICRO_SAMPLE_SIZE, combinations, counts), columns=attributes).to_csv(micro_sample_csv, index=False)
 
 
