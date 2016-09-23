@@ -16,9 +16,9 @@ activities = ['act0', 'act1', 'act2']
 micro_sample_csv = 'micro_sample.csv'
 marginal_csvs = map(lambda e: e + '.csv', attributes)
 
-survey_attributes_csv = 'survey_people.csv'
+survey_attributes_csv = 'survey_attributes.csv'
 survey_activities_csv = 'survey_activities.csv'
-synthetic_people_csv  = 'synthetic_population.csv'
+synthetic_people_csv  = 'synthetic_people.csv'
 
 # int[] -> int[][]
 # Takes a list describing the number of bins for each attribute and

@@ -6,9 +6,9 @@ from common import *
 
 # The following must be identical to the corresponding values in the genertion
 # script (if the files produced there are to be used).
-survey_attributes_csv    = 'survey_people.csv'
+survey_attributes_csv    = 'survey_attributes.csv'
 survey_activities_csv    = 'survey_activities.csv'
-synthetic_people_csv     = 'synthetic_population.csv' # TODO avoid different file name and variable name pattern (pick people or population)
+synthetic_people_csv     = 'synthetic_people.csv'
 synthetic_activities_csv = 'synthetic_activities.csv'
 attribute_names = ['attr_a', 'attr_b', 'attr_c']
 activity_names  = ['act0', 'act1', 'act2']
@@ -109,7 +109,7 @@ class Household:
   def distance(self, other_household):
     max_person_dist = 0
     for my_person in self.persons:
-      min_person_dist = float("inf") 
+      min_person_dist = float("inf")
       for other_person in other_household.persons:
         min_person_dist = min(min_person_dist, my_person.distance(other_person))
       max_person_dist = max(max_person_dist, min_person_dist)
